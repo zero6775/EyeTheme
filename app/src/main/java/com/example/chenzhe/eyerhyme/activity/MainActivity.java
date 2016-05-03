@@ -6,11 +6,17 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toolbar;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
+import com.amap.api.maps.LocationSource;
 import com.example.chenzhe.eyerhyme.R;
 import com.example.chenzhe.eyerhyme.adapter.MyFragmentAdapter;
 import com.example.chenzhe.eyerhyme.fragment.FilmFragment;
@@ -24,7 +30,7 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AMapLocationListener {
 
     @Bind(R.id.tb_title)
     TextView tbTitle;
@@ -45,6 +51,12 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Fragment> fragments;
     private boolean scroll;
+    public static double longitude;
+    public static double latitude;
+    private AMapLocationClient mLocationClient;
+    //声明定位回调监听器
+
+    private AMapLocationClientOption mLocationOption;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,11 +66,41 @@ public class MainActivity extends AppCompatActivity {
         init();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mLocationClient.startLocation();
+    }
+
     private void init() {
         scroll = false;
         initToolbar();
+        initLocation();
         initPager();
         initRadioButton();
+    }
+
+    private void initLocation() {
+
+
+        mLocationClient = new AMapLocationClient(getApplicationContext());
+        mLocationClient.setLocationListener(this);
+
+        mLocationOption = new AMapLocationClientOption();
+//设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
+        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+//设置是否返回地址信息（默认返回地址信息）
+        mLocationOption.setNeedAddress(true);
+//设置是否只定位一次,默认为false
+        mLocationOption.setOnceLocation(true);
+//设置是否强制刷新WIFI，默认为强制刷新
+        mLocationOption.setWifiActiveScan(true);
+
+//给定位客户端对象设置定位参数
+        mLocationClient.setLocationOption(mLocationOption);
+//启动定位
+        mLocationClient.startLocation();
+
     }
 
     private void initRadioButton() {
@@ -134,5 +176,18 @@ public class MainActivity extends AppCompatActivity {
         setActionBar(toolbar);
         getActionBar().setHomeButtonEnabled(false);
         getActionBar().setDisplayHomeAsUpEnabled(false);
+    }
+
+    @Override
+    public void onLocationChanged(AMapLocation aMapLocation) {
+        if (aMapLocation != null) {
+            if (aMapLocation.getErrorCode() == 0) {
+                longitude = aMapLocation.getLongitude();
+                latitude = aMapLocation.getLatitude();
+                Log.i("loc", "longitude: " + longitude + " latitude: " + latitude);
+            } else {
+
+            }
+        }
     }
 }

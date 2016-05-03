@@ -11,10 +11,23 @@ android {
         versionCode 1
         versionName "1.0"
     }
-    buildTypes {
+
+    signingConfigs {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            storeFile file('./key.jks')
+            storePassword "zero6775"
+            keyAlias "eyetheme"
+            keyPassword "zero6775"
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.release
+        }
+        release {
+            signingConfig signingConfigs.release
+
         }
     }
 }
@@ -37,4 +50,6 @@ dependencies {
     compile 'com.makeramen:roundedimageview:2.2.1'
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.zhy:okhttputils:2.3.9'
+    compile files('libs/AMap_3DMap_V3.3.1_20160419.jar')
+    compile files('libs/AMap_Location_V2.4.1_20160414.jar')
 }
